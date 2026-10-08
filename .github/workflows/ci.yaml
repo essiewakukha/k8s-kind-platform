@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+      - name: Unit tests, shell syntax, render and validate manifests
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/validate.sh
+
+  e2e:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kind
+        uses: helm/kind-action@v1
+        with:
+          install_only: true
+      - name: Create cluster, deploy, and smoke test
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/cluster-up.sh dev
+          ./scripts/smoke-test.sh
+      - name: Zero-downtime rollout test
+        run: ./scripts/chaos.sh rollout
+      - name: Dump cluster state on failure
+        if: failure()
+        run: |
+          kubectl get all -A
+          kubectl -n shop describe pods
+          kubectl -n shop logs -l app=shop-api --tail=100
