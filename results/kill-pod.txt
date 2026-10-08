@@ -1,0 +1,6 @@
+>> Deleting pod/shop-api-584b6d7858-7sf4l
+pod "shop-api-584b6d7858-7sf4l" deleted from shop namespace
+Waiting for deployment "shop-api" rollout to finish: 1 of 2 updated replicas are available...
+deployment "shop-api" successfully rolled out
+>> Requests sent: 164, failed: 0
+>> RESULT: zero failed requests

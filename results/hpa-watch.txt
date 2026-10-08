@@ -1,0 +1,8 @@
+NAME       REFERENCE             TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+shop-api   Deployment/shop-api   cpu: 2%/50%   2         6         2          79m
+shop-api   Deployment/shop-api   cpu: 4%/50%   2         6         2          79m
+shop-api   Deployment/shop-api   cpu: 2%/50%   2         6         2          79m
+shop-api   Deployment/shop-api   cpu: 3%/50%   2         6         2          80m
+shop-api   Deployment/shop-api   cpu: 2%/50%   2         6         2          80m
+shop-api   Deployment/shop-api   cpu: 4%/50%   2         6         2          80m
+shop-api   Deployment/shop-api   cpu: 2%/50%   2         6         2          80m

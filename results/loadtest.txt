@@ -1,0 +1,12 @@
+>> Starting load: 16 workers for 150s against http://localhost:8080/work
+   0s  cpu=cpu: replicas=6
+   15s  cpu=cpu: replicas=6
+   30s  cpu=cpu: replicas=6
+   46s  cpu=cpu: replicas=6
+   61s  cpu=cpu: replicas=6
+   77s  cpu=cpu: replicas=6
+   92s  cpu=cpu: replicas=6
+   107s  cpu=cpu: replicas=6
+   123s  cpu=cpu: replicas=6
+   138s  cpu=cpu: replicas=6
+>> Load stopped. Watch it scale back down with: kubectl -n shop get hpa -w

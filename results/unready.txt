@@ -1,0 +1,4 @@
+>> Before: endpoints = 2
+>> shop-api-584b6d7858-lcdzz now fails readiness. Waiting 15s for the probe...
+>> After:  endpoints = 1 (the pod was removed from the Service)
+>> shop-api-584b6d7858-lcdzz marked ready again
