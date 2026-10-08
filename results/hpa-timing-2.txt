@@ -1,0 +1,66 @@
+>> HPA bounds: min=2 max=6. Waiting for the deployment to settle at 2 replicas...
+>> Settled. Starting load: 16 workers for 60s
+time_s  phase  cpu%  current  desired  ready
+0  load  2  3  2  2
+3  load  2  3  2  2
+6  load  2  3  2  2
+9  load  2  3  2  2
+12  load  2  3  2  2
+15  load  3  2  2  2
+17  load  3  2  2  2
+20  load  3  2  2  2
+23  load  3  2  2  2
+26  load  3  2  2  2
+29  load  3  2  2  2
+32  load  358  2  6  2
+35  load  358  2  6  2
+37  load  358  2  6  6
+40  load  358  2  6  6
+43  load  358  2  6  6
+46  load  368  6  6  6
+49  load  368  6  6  6
+52  load  368  6  6  6
+55  load  368  6  6  6
+58  load  368  6  6  6
+62  idle  399  6  6  6
+65  idle  399  6  6  6
+69  idle  399  6  6  6
+73  idle  399  6  6  6
+77  idle  378  6  6  6
+80  idle  378  6  6  6
+84  idle  378  6  6  6
+87  idle  378  6  6  6
+91  idle  143  6  6  6
+95  idle  143  6  6  6
+99  idle  143  6  6  6
+103  idle  143  6  6  6
+106  idle  45  6  6  6
+111  idle  45  6  6  6
+114  idle  45  6  6  6
+118  idle  45  6  6  6
+122  idle  2  6  6  6
+126  idle  2  6  6  6
+131  idle  2  6  6  6
+134  idle  2  6  6  6
+138  idle  2  6  6  6
+141  idle  2  6  6  6
+145  idle  2  6  6  6
+148  idle  2  6  6  6
+152  idle  2  6  6  6
+155  idle  2  6  6  6
+159  idle  2  6  6  6
+162  idle  2  6  6  6
+165  idle  2  6  6  6
+169  idle  2  6  2  2
+172  idle  2  6  2  2
+176  idle  2  6  2  2
+179  idle  2  6  2  2
+183  idle  2  2  2  2
+
+=== HPA timing summary (single run, laptop) ===
+Peak CPU vs target:             399%
+Load started at:                0s
+First scale-up decision:        32s after load start
+All 6 replicas ready:        37s after load start
+Load stopped at:                62s
+Back to 2 replicas:           183s after load start (121s after load stopped)
