@@ -49,8 +49,9 @@ app/            the service and its Dockerfile
 kind/           cluster definition (1 control-plane, 2 workers)
 k8s/base/       Deployment, Service, HPA, PDB, NetworkPolicy, Ingress, Namespace
 k8s/overlays/   dev and prod
-scripts/        cluster-up, smoke-test, loadtest, chaos, validate, cluster-down
+scripts/        cluster-up, smoke-test, loadtest, measure-hpa, chaos, validate, cluster-down
 tests/          unit tests for the app
+results/        raw output of the autoscaler timing runs
 .github/        CI: validate, then a real cluster end-to-end test
 ```
 
@@ -69,6 +70,7 @@ Experiments:
 
 ```bash
 ./scripts/loadtest.sh            # CPU load; watch the HPA add pods (kubectl -n shop get hpa -w)
+./scripts/measure-hpa.sh 60 16   # times scale-up and scale-down, polling every 2 seconds
 ./scripts/chaos.sh kill-pod      # delete a pod while traffic flows
 ./scripts/chaos.sh rollout       # rolling restart while traffic flows
 ./scripts/chaos.sh unready       # one pod fails readiness and leaves the Service
@@ -89,7 +91,7 @@ Clean up:
 
 ## Results
 
-Measured on a laptop (HP EliteBook 830 G5, Ubuntu, Docker, kind v0.25.0) with the `dev` overlay. These are single runs, so treat them as evidence the design works, not as benchmarks.
+Measured on a laptop (HP EliteBook 830 G5, Ubuntu, Docker, kind v0.25.0) with the `dev` overlay. These are single runs (two for the autoscaler), so treat them as evidence the design works, not as benchmarks.
 
 | Test | Result |
 |---|---|
@@ -98,9 +100,13 @@ Measured on a laptop (HP EliteBook 830 G5, Ubuntu, Docker, kind v0.25.0) with th
 | Pod killed under traffic (`chaos.sh kill-pod`) | **164 requests sent, 0 failed.** The replacement became ready and the rollout completed. |
 | Readiness failure (`chaos.sh unready`) | Service endpoints went from **2 to 1** and the pod was not restarted. It rejoined after being marked ready. |
 | Root pod in the `shop` namespace | **Rejected** by Pod Security `restricted:latest` with four violations listed: privilege escalation, capabilities not dropped, `runAsNonRoot`, and seccomp profile. |
-| Autoscaling under CPU load | CPU reached **254% of the 50% target** and the HPA scaled to its maximum of **6 replicas**. After the load stopped, CPU fell to 2 to 3% and replicas began scaling back toward 2. |
+| Autoscaling under CPU load (`measure-hpa.sh`, 2 runs) | CPU reached about **400% of the 50% target**. The HPA decided to scale from 2 to 6 replicas **32 to 39 seconds** after load started, and all 6 were ready **37 to 44 seconds** after load started. After load stopped it took about **2 minutes (121s)** to return to 2 replicas, in line with the 60 second scale-down stabilization window plus metric lag. |
 
-**Not measured:** time for the autoscaler to reach 6 replicas, time to scale back down, cold start time of `cluster-up.sh` on a laptop, and whether kind's default network plugin actually enforces the NetworkPolicy.
+Where the autoscaler's time goes: most of the 32 to 39 seconds before the scale-up decision is the metrics pipeline (metrics-server scraping and the HPA sync interval), not pod startup. Once the decision was made, the new pods were ready within about 5 seconds.
+
+Raw output for the timing runs is in `results/`. `hpa-timing.txt` is the first run (180 seconds of load, stopped before the scale-down summary printed). `hpa-timing-2.txt` is the second run (60 seconds of load) with the full summary.
+
+**Not measured:** cold start time of `cluster-up.sh` on a laptop, whether kind's default network plugin actually enforces the NetworkPolicy, and scale-up with an image pull (the image was preloaded on every node, so pods started without a registry pull). Autoscaler timings are from two runs, so they show the shape, not a benchmark.
 
 **CI:** every push runs unit tests and manifest validation, then creates a real kind cluster, deploys, runs the smoke test and a zero-downtime rollout test. The first end-to-end run failed on a startup race (issue 7) and passed after the fix.
 
@@ -159,8 +165,5 @@ Every one of these happened during real runs.
 
 ## Next steps
 
-- [ ] Measure how long the autoscaler takes to scale up and back down
-- [ ] Add a CNI that enforces NetworkPolicy (for example Calico) and test the policy
 - [ ] Scrape the app from a Prometheus stack and alert on it
 - [ ] Add a Helm chart alongside Kustomize
-- [ ] Add Argo CD for GitOps deployment
